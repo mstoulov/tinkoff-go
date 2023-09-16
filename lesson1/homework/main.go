@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	for i := 1; i <= 100; i++ {
+	for i := 1; i < 101; i++ {
 		fmt.Println(fizzbuzz.FizzBuzz(i))
 	}
 }
