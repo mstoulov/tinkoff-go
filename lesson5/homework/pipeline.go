@@ -18,7 +18,7 @@ func EnableContextClosing(ctx context.Context, in In) Out {
 			select {
 			case <-ctx.Done():
 				close(out)
-				for _ = range in {
+				for range in {
 				}
 				return
 			case a, ok := <-in:
