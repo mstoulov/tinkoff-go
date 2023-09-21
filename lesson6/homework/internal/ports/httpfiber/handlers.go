@@ -1,12 +1,23 @@
 package httpfiber
 
 import (
+	"errors"
+	"homework6/internal/ads"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 
 	"homework6/internal/app"
 )
+
+func setStatus(err error, c *fiber.Ctx) {
+	if errors.Is(err, app.ErrBadRequest) {
+		c.Status(http.StatusBadRequest)
+	}
+	if errors.Is(err, app.ErrForbidden) {
+		c.Status(http.StatusForbidden)
+	}
+}
 
 // Метод для создания объявления (ad)
 func createAd(a app.App) fiber.Handler {
@@ -18,14 +29,14 @@ func createAd(a app.App) fiber.Handler {
 			return c.JSON(AdErrorResponse(err))
 		}
 
-		//TODO: вызов логики, например, CreateAd(c.Context(), reqBody.Title, reqBody.Text, reqBody.UserID)
-		// TODO: метод должен возвращать AdSuccessResponse или ошибку.
+		var ad ads.Ad
+		ad, err = a.CreateAd(reqBody.Title, reqBody.Text, reqBody.UserID)
 
 		if err != nil {
-			c.Status(http.StatusInternalServerError)
+			setStatus(err, c)
 			return c.JSON(AdErrorResponse(err))
 		}
-		return c.JSON(AdSuccessResponse( /* объект ad */ ))
+		return c.JSON(AdSuccessResponse(&ad))
 	}
 }
 
@@ -44,15 +55,15 @@ func changeAdStatus(a app.App) fiber.Handler {
 			return c.JSON(AdErrorResponse(err))
 		}
 
-		// TODO: вызов логики ChangeAdStatus(c.Context(), int64(adID), reqBody.UserID, reqBody.Published)
-		// TODO: метод должен возвращать AdSuccessResponse или ошибку.
+		var ad ads.Ad
+		ad, err = a.ChangeAdStatus(int64(adID), reqBody.UserID, reqBody.Published)
 
 		if err != nil {
-			c.Status(http.StatusInternalServerError)
+			setStatus(err, c)
 			return c.JSON(AdErrorResponse(err))
 		}
 
-		return c.JSON(AdSuccessResponse( /* объект ad */ ))
+		return c.JSON(AdSuccessResponse(&ad))
 	}
 }
 
@@ -71,14 +82,14 @@ func updateAd(a app.App) fiber.Handler {
 			return c.JSON(AdErrorResponse(err))
 		}
 
-		// TODO: вызов логики, например, UpdateAd(c.Context(), int64(adID), reqBody.UserID, reqBody.Title, reqBody.Text)
-		// TODO: метод должен возвращать AdSuccessResponse или ошибку.
+		var ad ads.Ad
+		ad, err = a.UpdateAd(int64(adID), reqBody.UserID, reqBody.Title, reqBody.Text)
 
 		if err != nil {
-			c.Status(http.StatusInternalServerError)
+			setStatus(err, c)
 			return c.JSON(AdErrorResponse(err))
 		}
 
-		return c.JSON(AdSuccessResponse( /* объект ad */ ))
+		return c.JSON(AdSuccessResponse(&ad))
 	}
 }
